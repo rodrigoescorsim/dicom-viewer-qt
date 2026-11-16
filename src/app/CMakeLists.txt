@@ -1,6 +1,8 @@
 qt_add_library(dv_app STATIC
     ErrorMessages.hpp ErrorMessages.cpp
     DocumentLoader.hpp DocumentLoader.cpp
+    ImageViewport.hpp ImageViewport.cpp
+    MainWindow.hpp MainWindow.cpp
 )
 target_link_libraries(dv_app PUBLIC Qt6::Widgets Qt6::Concurrent dv_dicom)
 dv_set_project_options(dv_app)
