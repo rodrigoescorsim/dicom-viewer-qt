@@ -77,7 +77,7 @@ DCMTK e zlib são baixados e compilados pelo [vcpkg](https://vcpkg.io/), com ver
 | vcpkg | recente |
 | Git | |
 
-Desenvolvido e testado no **Windows 11 x64**. O preset de Linux está pronto, mas não foi testado.
+Testado no **Windows 11 x64** (MSVC) e no **Ubuntu 24.04** (GCC 13), sem avisos de compilação.
 
 ## Configuração
 
@@ -103,7 +103,8 @@ Desenvolvido e testado no **Windows 11 x64**. O preset de Linux está pronto, ma
 
 ```bash
 sudo apt install build-essential cmake ninja-build git curl zip unzip tar pkg-config \
-                 libgl1-mesa-dev libxkbcommon-dev libfontconfig1-dev libxcb-cursor0
+                 libgl1-mesa-dev libxkbcommon-dev libfontconfig1-dev libglib2.0-0 libdbus-1-3 \
+                 libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 libxcb-shape0 libxkbcommon-x11-0
 git clone https://github.com/microsoft/vcpkg ~/vcpkg && ~/vcpkg/bootstrap-vcpkg.sh -disableMetrics
 export VCPKG_ROOT=~/vcpkg
 export QT_ROOT_DIR=~/Qt/6.11.3/gcc_64   # Qt do instalador oficial

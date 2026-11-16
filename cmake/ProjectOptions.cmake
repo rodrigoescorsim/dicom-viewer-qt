@@ -7,7 +7,9 @@ function(dv_set_project_options target)
             target_compile_options(${target} PRIVATE /WX)
         endif()
     else()
-        target_compile_options(${target} PRIVATE -Wall -Wextra -Wpedantic -Wshadow)
+        # Designated initializers may omit members that have default values.
+        target_compile_options(${target} PRIVATE -Wall -Wextra -Wpedantic -Wshadow
+                                                 -Wno-missing-field-initializers)
         if(DV_WARNINGS_AS_ERRORS)
             target_compile_options(${target} PRIVATE -Werror)
         endif()

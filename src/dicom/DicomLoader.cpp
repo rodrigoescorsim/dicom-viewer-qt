@@ -409,7 +409,7 @@ LoadResult<ImageDocument> load(const std::filesystem::path& path) {
     // 3. Make sure a decoder is registered for the transfer syntax before touching the pixels.
     const E_TransferSyntax transferSyntax = dataset.getOriginalXfer();
     const DcmXfer transferSyntaxInfo(transferSyntax);
-    if (transferSyntaxInfo.isEncapsulated() &&
+    if (transferSyntaxInfo.usesEncapsulatedFormat() && transferSyntaxInfo.isPixelDataCompressed() &&
         !DcmCodecList::canChangeCoding(transferSyntax, EXS_LittleEndianExplicit)) {
         return fail(LoadErrorCode::UnsupportedTransferSyntax, transferSyntaxInfo.getXferName());
     }
