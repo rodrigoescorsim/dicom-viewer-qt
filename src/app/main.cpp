@@ -1,4 +1,5 @@
 #include "app/MainWindow.hpp"
+#include "app/QtTranslations.hpp"
 #include "dicom/CodecRegistry.hpp"
 
 #include <QApplication>
@@ -15,6 +16,8 @@ int main(int argc, char* argv[]) {
     QCoreApplication::setOrganizationName(QStringLiteral("DicomViewer"));
     QCoreApplication::setApplicationName(QStringLiteral("DICOM Viewer"));
     QCoreApplication::setApplicationVersion(QStringLiteral(DV_VERSION));
+    static_cast<void>(
+        dv::app::installQtTranslations(app)); // optional: without it a few Qt texts stay English
     QApplication::setStyle(QStyleFactory::create(QStringLiteral("Fusion")));
     QGuiApplication::styleHints()->setColorScheme(Qt::ColorScheme::Dark);
     {

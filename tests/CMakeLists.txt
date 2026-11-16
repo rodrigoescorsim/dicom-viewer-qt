@@ -31,3 +31,4 @@ dv_add_test(tst_ImageViewport SOURCES app/tst_ImageViewport.cpp support/TestDocu
 dv_add_test(tst_WindowLevelControls SOURCES app/tst_WindowLevelControls.cpp support/TestDocuments.hpp LIBS dv_app)
 dv_add_test(tst_MetadataPanel SOURCES app/tst_MetadataPanel.cpp LIBS dv_app)
 dv_add_test(tst_MainWindow SOURCES app/tst_MainWindow.cpp support/TestSupport.hpp LIBS dv_app)
+dv_add_test(tst_QtTranslations SOURCES app/tst_QtTranslations.cpp LIBS dv_app)

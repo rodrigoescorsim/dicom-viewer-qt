@@ -4,6 +4,7 @@ qt_add_library(dv_app STATIC
     ImageViewport.hpp ImageViewport.cpp
     MainWindow.hpp MainWindow.cpp
     MetadataPanel.hpp MetadataPanel.cpp
+    QtTranslations.hpp QtTranslations.cpp
     WindowLevelControls.hpp WindowLevelControls.cpp
 )
 target_link_libraries(dv_app PUBLIC Qt6::Widgets Qt6::Concurrent dv_dicom)
