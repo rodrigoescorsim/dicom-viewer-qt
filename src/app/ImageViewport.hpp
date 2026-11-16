@@ -107,6 +107,7 @@ private:
     Qt::MouseButton m_dragButton{Qt::NoButton};
     QPointF m_dragStartPosition; ///< Widget coordinates.
     QPointF m_dragStartCenter;
+    dv::VoiWindow m_dragStartWindow;
 
     QImage m_frame; ///< Cache: current pyramid level rendered with the current window.
     int m_frameLevel{-1};

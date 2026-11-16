@@ -2,6 +2,7 @@
 
 #include "app/ErrorMessages.hpp"
 #include "app/ImageViewport.hpp"
+#include "app/WindowLevelControls.hpp"
 #include "core/ImageDocument.hpp"
 
 #include <QAction>
@@ -95,6 +96,19 @@ void MainWindow::createActions() {
     m_toolBar->addAction(m_actualSizeAction);
     m_toolBar->addAction(m_zoomInAction);
     m_toolBar->addAction(m_zoomOutAction);
+
+    m_windowControls = new WindowLevelControls(this);
+    m_resetWindowAction =
+        viewMenu->addAction(QIcon::fromTheme(QIcon::ThemeIcon::ViewRefresh), tr("Restaurar janela"));
+    m_resetWindowAction->setShortcut(QKeySequence(Qt::Key_R));
+    connect(m_resetWindowAction, &QAction::triggered, m_viewport, &ImageViewport::resetWindow);
+    m_toolBar->addSeparator();
+    m_toolBar->addWidget(m_windowControls);
+    m_toolBar->addAction(m_resetWindowAction);
+
+    // setWindow() on both sides ignores unchanged values, which ends the signal round trip.
+    connect(m_viewport, &ImageViewport::windowChanged, m_windowControls, &WindowLevelControls::setWindow);
+    connect(m_windowControls, &WindowLevelControls::windowEdited, m_viewport, &ImageViewport::setWindow);
 }
 
 void MainWindow::createStatusBar() {
@@ -111,6 +125,7 @@ void MainWindow::updateActionStates() {
     for (QAction* action : {m_fitAction, m_actualSizeAction, m_zoomInAction, m_zoomOutAction}) {
         action->setEnabled(hasDocument);
     }
+    m_resetWindowAction->setEnabled(hasDocument && m_viewport->document()->mono() != nullptr);
 }
 
 void MainWindow::updateImageInfo() {
@@ -173,6 +188,7 @@ void MainWindow::onLoadStarted(const QString& filePath) {
 
 void MainWindow::onLoadSucceeded(const QString& filePath, const dv::app::DocumentPtr& document) {
     finishPendingLoads();
+    m_windowControls->setDocument(document); // first: the viewport's initial windowChanged needs the presets
     m_viewport->setDocument(document);
     setWindowTitle(tr("%1 — DICOM Viewer").arg(QFileInfo(filePath).fileName()));
     updateImageInfo();

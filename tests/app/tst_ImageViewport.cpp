@@ -63,6 +63,27 @@ void sendWheel(ImageViewport& viewport, QPointF position, int delta) {
     return makeMonoDocument(200, 100, filled(200, 100, 0), kIdentityWindow);
 }
 
+constexpr VoiWindow kDragWindow{.center = 1000.0, .width = 500.0, .function = VoiFunction::Linear};
+
+/// Mono 64x64 with indices 0..2048: a window drag moves 2 modality units per mouse pixel.
+[[nodiscard]] dv::app::DocumentPtr windowDragDocument(VoiWindow window = kDragWindow) {
+    constexpr std::size_t kSide = 64;
+    constexpr std::size_t kMaxIndex = 2048;
+    std::vector<std::uint16_t> indices(kSide * kSide);
+    for (std::size_t i = 0; i < indices.size(); ++i) {
+        indices[i] = static_cast<std::uint16_t>(i % (kMaxIndex + 1));
+    }
+    return makeMonoDocument(static_cast<int>(kSide), static_cast<int>(kSide), std::move(indices), window);
+}
+
+/// Left-button drag from `from` to `to`, with `modifiers`.
+void leftDrag(ImageViewport& viewport, QPoint from, QPoint to,
+              Qt::KeyboardModifiers modifiers = Qt::NoModifier) {
+    QTest::mousePress(&viewport, Qt::LeftButton, modifiers, from);
+    QTest::mouseMove(&viewport, to);
+    QTest::mouseRelease(&viewport, Qt::LeftButton, modifiers, to);
+}
+
 /// Resizes, shows and waits until the viewport can be painted.
 [[nodiscard]] bool showViewport(ImageViewport& viewport, int width, int height) {
     viewport.resize(width, height);
@@ -106,6 +127,17 @@ private slots:
     void probe_reportsValue();
     void probe_reportsColor();
     void probe_outsideImage_isEmpty();
+
+    // T11: window level / window width
+    void leftDrag_changesWindow();
+    void leftDrag_widthNeverBelowOne();
+    void leftDrag_keepsFunction();
+    void leftDrag_onColor_pans();
+    void setWindow_rerendersFrame();
+    void setWindow_sameValue_doesNotEmit();
+    void setWindow_sanitizes();
+    void resetWindow_restoresDefault();
+    void setWindow_onColor_isIgnored();
 };
 
 void TstImageViewport::emptyState_paintsBlack() {
@@ -478,6 +510,107 @@ void TstImageViewport::probe_outsideImage_isEmpty() {
     QTest::mouseMove(&viewport, QPoint(5, 5));
     QTRY_VERIFY(probeSignals > signalsInside);
     QVERIFY(!last.has_value());
+}
+
+void TstImageViewport::leftDrag_changesWindow() {
+    ImageViewport viewport;
+    QVERIFY(showViewport(viewport, 400, 300));
+    viewport.setDocument(windowDragDocument());
+    int windowSignals = 0;
+    connect(&viewport, &ImageViewport::windowChanged, this, [&windowSignals] { ++windowSignals; });
+
+    leftDrag(viewport, QPoint(100, 100), QPoint(150, 80));
+    QCOMPARE(viewport.window(),
+             (VoiWindow{.center = 960.0, .width = 600.0, .function = VoiFunction::Linear}));
+    QVERIFY(windowSignals >= 1);
+}
+
+void TstImageViewport::leftDrag_widthNeverBelowOne() {
+    ImageViewport viewport;
+    QVERIFY(showViewport(viewport, 400, 300));
+    viewport.setDocument(windowDragDocument());
+
+    leftDrag(viewport, QPoint(300, 100), QPoint(-4700, 100));
+    QCOMPARE(viewport.window().width, 1.0);
+}
+
+void TstImageViewport::leftDrag_keepsFunction() {
+    constexpr VoiWindow kSigmoid{.center = 1000.0, .width = 500.0, .function = VoiFunction::Sigmoid};
+    ImageViewport viewport;
+    QVERIFY(showViewport(viewport, 400, 300));
+    viewport.setDocument(windowDragDocument(kSigmoid));
+
+    leftDrag(viewport, QPoint(100, 100), QPoint(140, 130));
+    QVERIFY(viewport.window() != kSigmoid);
+    QVERIFY(viewport.window().function == VoiFunction::Sigmoid);
+}
+
+void TstImageViewport::leftDrag_onColor_pans() {
+    ImageViewport viewport;
+    QVERIFY(showViewport(viewport, 400, 300));
+    viewport.setDocument(makeColorDocument(2, 1, {255, 0, 0, 0, 0, 255}));
+    int windowSignals = 0;
+    connect(&viewport, &ImageViewport::windowChanged, this, [&windowSignals] { ++windowSignals; });
+    const QPointF fixed(1.0, 0.5);
+    const QPointF before = viewport.imageToWidget(fixed);
+
+    leftDrag(viewport, QPoint(200, 150), QPoint(220, 160));
+    QCOMPARE(windowSignals, 0);
+    QVERIFY(near(viewport.imageToWidget(fixed) - before, QPointF(20.0, 10.0)));
+}
+
+void TstImageViewport::setWindow_rerendersFrame() {
+    ImageViewport viewport;
+    QVERIFY(showViewport(viewport, 400, 300));
+    viewport.setDocument(makeMonoDocument(2, 2, {0, 255, 128, 64}, kIdentityWindow));
+    QCOMPARE(grayAt(viewport.renderedFrame(), 0, 1), 128);
+
+    viewport.setWindow({.center = 64.0, .width = 128.0, .function = VoiFunction::Linear});
+    QCOMPARE(grayAt(viewport.renderedFrame(), 0, 1), 255);
+}
+
+void TstImageViewport::setWindow_sameValue_doesNotEmit() {
+    ImageViewport viewport;
+    QVERIFY(showViewport(viewport, 400, 300));
+    viewport.setDocument(windowDragDocument());
+    int windowSignals = 0;
+    connect(&viewport, &ImageViewport::windowChanged, this, [&windowSignals] { ++windowSignals; });
+
+    viewport.setWindow(viewport.window());
+    QCOMPARE(windowSignals, 0);
+}
+
+void TstImageViewport::setWindow_sanitizes() {
+    ImageViewport viewport;
+    QVERIFY(showViewport(viewport, 400, 300));
+    viewport.setDocument(windowDragDocument());
+
+    viewport.setWindow({.center = 10.0, .width = -5.0, .function = VoiFunction::Linear});
+    QCOMPARE(viewport.window().width, 1.0);
+}
+
+void TstImageViewport::resetWindow_restoresDefault() {
+    ImageViewport viewport;
+    QVERIFY(showViewport(viewport, 400, 300));
+    viewport.setDocument(windowDragDocument());
+
+    leftDrag(viewport, QPoint(100, 100), QPoint(170, 60));
+    QVERIFY(viewport.window() != kDragWindow);
+    viewport.resetWindow();
+    QCOMPARE(viewport.window(), kDragWindow);
+}
+
+void TstImageViewport::setWindow_onColor_isIgnored() {
+    ImageViewport viewport;
+    QVERIFY(showViewport(viewport, 400, 300));
+    viewport.setDocument(makeColorDocument(2, 1, {255, 0, 0, 0, 0, 255}));
+    int windowSignals = 0;
+    connect(&viewport, &ImageViewport::windowChanged, this, [&windowSignals] { ++windowSignals; });
+
+    viewport.setWindow({.center = 10.0, .width = 20.0, .function = VoiFunction::Linear});
+    viewport.resetWindow();
+    QCOMPARE(windowSignals, 0);
+    QVERIFY(!viewport.grab().isNull());
 }
 
 QTEST_MAIN(TstImageViewport)

@@ -15,6 +15,7 @@ class QToolBar;
 namespace dv::app {
 
 class ImageViewport;
+class WindowLevelControls;
 struct PixelProbe;
 
 class MainWindow : public QMainWindow {
@@ -51,6 +52,8 @@ private:
     QAction* m_actualSizeAction{nullptr};
     QAction* m_zoomInAction{nullptr};
     QAction* m_zoomOutAction{nullptr};
+    QAction* m_resetWindowAction{nullptr};
+    WindowLevelControls* m_windowControls{nullptr};
     QLabel* m_probeLabel{nullptr};
     QLabel* m_imageInfoLabel{nullptr};
     QLabel* m_zoomLabel{nullptr};

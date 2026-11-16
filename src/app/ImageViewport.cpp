@@ -44,6 +44,8 @@ constexpr double kMinZoomFactor = 0.5;  ///< Smallest zoom, relative to min(fit,
 constexpr double kMaxDeviceZoom = 16.0; ///< Device pixels per image pixel allowed at the largest zoom.
 constexpr double kMaxFitFactor = 4.0;   ///< ...unless 4x the fit zoom is larger (tiny images).
 constexpr double kPercent = 100.0;
+/// A window drag spans the image's value range in this many mouse pixels (but never < 1 unit per pixel).
+constexpr double kWindowDragPixels = 1024.0;
 
 [[nodiscard]] QString toQString(const std::string& text) {
     return QString::fromUtf8(text.data(), static_cast<qsizetype>(text.size()));
@@ -181,17 +183,20 @@ void ImageViewport::mousePressEvent(QMouseEvent* event) {
     }
     const bool isColor = m_document->color() != nullptr;
     const bool ctrl = event->modifiers().testFlag(Qt::ControlModifier);
-    const bool pan =
-        event->button() == Qt::MiddleButton || (event->button() == Qt::LeftButton && (ctrl || isColor));
-    if (!pan) {
+    if (event->button() == Qt::MiddleButton || (event->button() == Qt::LeftButton && (ctrl || isColor))) {
+        m_dragMode = DragMode::Pan;
+        setCursor(Qt::ClosedHandCursor);
+    } else if (event->button() == Qt::LeftButton) {
+        m_dragMode = DragMode::WindowLevel; // monochrome image: color images have no window
+        setCursor(Qt::SizeAllCursor);
+    } else {
         QWidget::mousePressEvent(event);
         return;
     }
-    m_dragMode = DragMode::Pan;
-    setCursor(Qt::ClosedHandCursor);
     m_dragButton = event->button();
     m_dragStartPosition = event->position();
     m_dragStartCenter = m_center;
+    m_dragStartWindow = m_window;
     event->accept();
 }
 
@@ -205,8 +210,18 @@ void ImageViewport::mouseMoveEvent(QMouseEvent* event) {
         update();
         break;
     }
-    case DragMode::WindowLevel:
+    case DragMode::WindowLevel: {
+        // Right = wider window (less contrast); down = higher center (darker image). update(), called by
+        // setWindow(), coalesces repaints: nothing is rendered here.
+        const dv::MonoImage* mono = m_document->mono();
+        const double unitsPerPixel = std::max(1.0, (mono->maxValue - mono->minValue) / kWindowDragPixels);
+        const QPointF delta = event->position() - m_dragStartPosition;
+        setWindow(
+            {.center = m_dragStartWindow.center + delta.y() * unitsPerPixel,
+             .width = std::max(dv::kMinWindowWidth, m_dragStartWindow.width + delta.x() * unitsPerPixel),
+             .function = m_dragStartWindow.function});
         break;
+    }
     case DragMode::None:
         emit probeChanged(probeAt(event->position()));
         break;
@@ -380,7 +395,24 @@ void ImageViewport::drawOrientationLabels(QPainter& painter) const {
 }
 
 void ImageViewport::drawInfoText(QPainter& painter) const {
-    const QString text = tr("Zoom: %1 %").arg(qRound(zoom() * kPercent));
+    QString text = tr("Zoom: %1 %").arg(qRound(zoom() * kPercent));
+    if (const dv::MonoImage* mono = m_document->mono()) {
+        const int decimals = mono->mapping.scale == 1.0 ? 0 : 1;
+        QString windowLine = tr("WL: %1  WW: %2")
+                                 .arg(QString::number(m_window.center, 'f', decimals),
+                                      QString::number(m_window.width, 'f', decimals));
+        switch (m_window.function) {
+        case dv::VoiFunction::Linear:
+            break;
+        case dv::VoiFunction::LinearExact:
+            windowLine += QStringLiteral("  (LINEAR_EXACT)");
+            break;
+        case dv::VoiFunction::Sigmoid:
+            windowLine += QStringLiteral("  (SIGMOID)");
+            break;
+        }
+        text = windowLine + QLatin1Char('\n') + text;
+    }
     const QRectF area = QRectF(rect()).adjusted(kTextMargin, kTextMargin, -kTextMargin, -kTextMargin);
     painter.save();
     drawOutlinedText(painter, area, Qt::AlignLeft | Qt::AlignBottom, text, kInfoTextColor);
