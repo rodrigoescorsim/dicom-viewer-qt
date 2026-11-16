@@ -2,11 +2,13 @@
 
 #include "app/ErrorMessages.hpp"
 #include "app/ImageViewport.hpp"
+#include "app/MetadataPanel.hpp"
 #include "app/WindowLevelControls.hpp"
 #include "core/ImageDocument.hpp"
 
 #include <QAction>
 #include <QDir>
+#include <QDockWidget>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QGuiApplication>
@@ -28,6 +30,7 @@ namespace {
 constexpr int kInitialWidth = 1280;
 constexpr int kInitialHeight = 800;
 constexpr double kPercent = 100.0;
+constexpr int kMetadataDockWidth = 440;
 
 [[nodiscard]] QString toQString(const std::string& text) {
     return QString::fromUtf8(text.data(), static_cast<qsizetype>(text.size()));
@@ -109,6 +112,22 @@ void MainWindow::createActions() {
     // setWindow() on both sides ignores unchanged values, which ends the signal round trip.
     connect(m_viewport, &ImageViewport::windowChanged, m_windowControls, &WindowLevelControls::setWindow);
     connect(m_windowControls, &WindowLevelControls::windowEdited, m_viewport, &ImageViewport::setWindow);
+
+    m_metadataPanel = new MetadataPanel(this);
+    auto* metadataDock = new QDockWidget(tr("Metadados DICOM"), this);
+    metadataDock->setObjectName(QStringLiteral("metadataDock"));
+    metadataDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    metadataDock->setWidget(m_metadataPanel);
+    addDockWidget(Qt::RightDockWidgetArea, metadataDock);
+    resizeDocks({metadataDock}, {kMetadataDockWidth}, Qt::Horizontal);
+
+    QAction* metadataAction = metadataDock->toggleViewAction();
+    metadataAction->setText(tr("Metadados"));
+    metadataAction->setShortcut(QKeySequence(Qt::Key_F9));
+    viewMenu->addSeparator();
+    viewMenu->addAction(metadataAction);
+    m_toolBar->addSeparator();
+    m_toolBar->addAction(metadataAction);
 }
 
 void MainWindow::createStatusBar() {
@@ -190,6 +209,7 @@ void MainWindow::onLoadSucceeded(const QString& filePath, const dv::app::Documen
     finishPendingLoads();
     m_windowControls->setDocument(document); // first: the viewport's initial windowChanged needs the presets
     m_viewport->setDocument(document);
+    m_metadataPanel->setMetadata(document->metadata);
     setWindowTitle(tr("%1 — DICOM Viewer").arg(QFileInfo(filePath).fileName()));
     updateImageInfo();
     updateActionStates();
