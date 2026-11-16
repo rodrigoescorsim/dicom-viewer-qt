@@ -26,3 +26,4 @@ dv_add_test(tst_DicomLoader SOURCES dicom/tst_DicomLoader.cpp support/TestSuppor
 dv_add_test(tst_DicomLoaderErrors SOURCES dicom/tst_DicomLoaderErrors.cpp support/TestSupport.hpp LIBS dv_dicom)
 dv_add_test(tst_DicomLoaderNoCodecs SOURCES dicom/tst_DicomLoaderNoCodecs.cpp support/TestSupport.hpp LIBS dv_dicom)
 dv_add_test(tst_Metadata SOURCES dicom/tst_Metadata.cpp support/TestSupport.hpp LIBS dv_dicom)
+dv_add_test(tst_DocumentLoader SOURCES app/tst_DocumentLoader.cpp support/TestSupport.hpp LIBS dv_app)
