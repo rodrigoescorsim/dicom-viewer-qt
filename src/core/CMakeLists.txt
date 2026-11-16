@@ -2,7 +2,7 @@ add_library(dv_core STATIC
     Voi.hpp Voi.cpp
     GrayLut.hpp GrayLut.cpp
     Raster.hpp
-    # T04: Orientation.hpp Orientation.cpp
+    Orientation.hpp Orientation.cpp
     # T05: LoadError.hpp ImageDocument.hpp
 )
 target_include_directories(dv_core PUBLIC "${PROJECT_SOURCE_DIR}/src")
