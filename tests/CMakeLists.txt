@@ -17,4 +17,5 @@ function(dv_add_test name)
     endif()
 endfunction()
 
-dv_add_test(tst_Smoke SOURCES core/tst_Smoke.cpp LIBS dv_core)
+dv_add_test(tst_Voi SOURCES core/tst_Voi.cpp LIBS dv_core)
+dv_add_test(tst_GrayLut SOURCES core/tst_GrayLut.cpp LIBS dv_core)
