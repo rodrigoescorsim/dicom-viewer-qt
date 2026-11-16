@@ -1,7 +1,7 @@
 add_library(dv_core STATIC
     Voi.hpp Voi.cpp
     GrayLut.hpp GrayLut.cpp
-    # T03: Raster.hpp
+    Raster.hpp
     # T04: Orientation.hpp Orientation.cpp
     # T05: LoadError.hpp ImageDocument.hpp
 )
