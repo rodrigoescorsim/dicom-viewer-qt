@@ -28,8 +28,7 @@ struct PixelProbe {
     QRgb rgb{0};       ///< Color images.
 };
 
-/// Displays one ImageDocument with the right size, aspect ratio, gray scale and orientation (row 0 at the
-/// top, column 0 at the left; never mirrored nor rotated).
+/// Displays one ImageDocument as stored: row 0 at the top, column 0 at the left, never mirrored or rotated.
 class ImageViewport : public QWidget {
     Q_OBJECT
 

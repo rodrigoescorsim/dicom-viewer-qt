@@ -29,7 +29,7 @@ struct Position {
     int row{0};
 };
 
-/// p00, pc, pl, pq as defined in Appendix A of the plan.
+/// Sample points (column, row): p00 = (0, 0), pc = (W/2, H/2), pl = (W-1, H-1), pq = (W/4, H/3).
 [[nodiscard]] std::array<Position, 4> referencePositions(int width, int height) {
     return {{{0, 0}, {width / 2, height / 2}, {width - 1, height - 1}, {width / 4, height / 3}}};
 }

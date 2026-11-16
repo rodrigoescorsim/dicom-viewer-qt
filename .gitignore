@@ -4,6 +4,7 @@
 /vcpkg_installed/
 CMakeUserPresets.json
 CMakeLists.txt.user*
+/.qtcreator/
 
 # IDEs
 /.vs/
@@ -11,6 +12,6 @@ CMakeLists.txt.user*
 /.idea/
 *.swp
 
-# SO
+# OS
 .DS_Store
 Thumbs.db

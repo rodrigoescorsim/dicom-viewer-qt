@@ -16,13 +16,12 @@ int main(int argc, char* argv[]) {
     QCoreApplication::setOrganizationName(QStringLiteral("DicomViewer"));
     QCoreApplication::setApplicationName(QStringLiteral("DICOM Viewer"));
     QCoreApplication::setApplicationVersion(QStringLiteral(DV_VERSION));
-    // Optional: without the catalog only a few built-in Qt texts stay in English.
+    // Optional: without the catalog a few built-in Qt texts stay in English.
     static_cast<void>(dv::app::installQtTranslations(app));
     QApplication::setStyle(QStyleFactory::create(QStringLiteral("Fusion")));
     QGuiApplication::styleHints()->setColorScheme(Qt::ColorScheme::Dark);
     {
-        // The dark palette paints alternate rows (metadata tree) in a saturated blue; a neutral shade
-        // slightly lighter than the base keeps the rows readable without competing with the image.
+        // The dark palette paints alternate rows in a saturated blue; use a neutral shade instead.
         constexpr int kAlternateRowLightness = 125; // percent of Base
         QPalette palette = QApplication::palette();
         palette.setColor(QPalette::AlternateBase,

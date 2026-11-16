@@ -1,7 +1,6 @@
 #include "dicom/CodecRegistry.hpp"
 
 #include <dcmtk/config/osconfig.h>
-
 #include <dcmtk/dcmdata/dcrledrg.h>
 #include <dcmtk/dcmjpeg/djdecode.h>
 #include <dcmtk/dcmjpls/djdecode.h>

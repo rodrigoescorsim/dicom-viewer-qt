@@ -33,7 +33,7 @@ QString describeLoadError(const dv::LoadError& error) {
     case dv::LoadErrorCode::OutOfMemory:
         return QCoreApplication::translate("LoadError", "Memória insuficiente para carregar a imagem.");
     }
-    // Only reachable with a value outside the enumeration (memory corruption): still never empty.
+    // Only reachable with a value outside the enumeration.
     return QCoreApplication::translate("LoadError", "O formato desta imagem não é suportado.");
 }
 

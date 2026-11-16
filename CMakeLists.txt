@@ -15,11 +15,11 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 find_package(DCMTK CONFIG REQUIRED)
 find_package(Qt6 6.8 REQUIRED COMPONENTS Core Gui Widgets Concurrent)
 qt_standard_project_setup()
-# Since Qt 6.10 the call above puts every executable in one folder on Windows. Keep CMake's default
-# per-directory layout instead: the tests must NOT share the folder of the windeployqt-deployed app.
+# Qt 6.10+ puts every executable in one folder on Windows. Keep one folder per target: the tests must
+# not share the folder of the windeployqt-deployed app.
 unset(CMAKE_RUNTIME_OUTPUT_DIRECTORY)
 
-# Directory with the Qt tools and DLLs (used for windeployqt and for running the tests on Windows).
+# Qt tools and DLLs: used by windeployqt and by the tests on Windows.
 get_target_property(_dv_qmake Qt6::qmake IMPORTED_LOCATION)
 get_filename_component(DV_QT_BIN_DIR "${_dv_qmake}" DIRECTORY)
 

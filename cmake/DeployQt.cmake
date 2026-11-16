@@ -1,5 +1,5 @@
-# Copies the Qt runtime next to an executable after each build (Windows only), so it can be started
-# from Explorer without touching PATH. The DCMTK DLLs are copied by the vcpkg toolchain.
+# Copies the Qt runtime next to the executable after each build (Windows only), so it runs without PATH
+# changes. The vcpkg toolchain copies the DCMTK DLLs.
 function(dv_deploy_qt target)
     if(NOT WIN32)
         return()

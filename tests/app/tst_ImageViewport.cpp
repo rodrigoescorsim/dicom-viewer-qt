@@ -113,7 +113,7 @@ private slots:
     void setDocument_resetsWindowAndEmits();
     void replacingColorDocument_isSafe();
 
-    // T10: zoom, pan and pixel probe
+    // Zoom, pan and pixel probe
     void wheelZoom_keepsPointUnderCursor();
     void wheelZoom_out();
     void zoom_isClamped();
@@ -128,7 +128,7 @@ private slots:
     void probe_reportsColor();
     void probe_outsideImage_isEmpty();
 
-    // T11: window level / window width
+    // Window level / window width
     void leftDrag_changesWindow();
     void leftDrag_widthNeverBelowOne();
     void leftDrag_keepsFunction();

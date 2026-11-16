@@ -1,4 +1,4 @@
-# Applies the project-wide compiler options to one of OUR targets (never to third-party code).
+# Compiler options for the project's own targets.
 function(dv_set_project_options target)
     if(MSVC)
         target_compile_options(${target} PRIVATE /W4 /permissive- /utf-8)

@@ -25,8 +25,8 @@ std::vector<std::uint8_t> buildGrayLut(const GrayLutParams& params) {
     return lut;
 }
 
-void applyGrayLut(std::span<const std::uint16_t> src, std::span<const std::uint8_t> lut, int width, int height,
-                  std::uint8_t* dst, std::ptrdiff_t dstStride) noexcept {
+void applyGrayLut(std::span<const std::uint16_t> src, std::span<const std::uint8_t> lut, int width,
+                  int height, std::uint8_t* dst, std::ptrdiff_t dstStride) noexcept {
     assert(src.size() == static_cast<std::size_t>(width) * static_cast<std::size_t>(height));
     assert(dstStride >= width);
     const std::uint16_t* in = src.data();

@@ -10,8 +10,8 @@
 namespace dv::app {
 
 bool installQtTranslations(QCoreApplication& application) {
-    // The interface is always Portuguese, whatever the system language. QLibraryInfo points to the Qt
-    // installation during development and to the folder next to the executable after windeployqt.
+    // Always Portuguese, whatever the system language. TranslationsPath is the Qt installation during
+    // development and the executable's folder after windeployqt.
     auto translator = std::make_unique<QTranslator>();
     if (!translator->load(QLocale(QLocale::Portuguese, QLocale::Brazil), QStringLiteral("qt"),
                           QStringLiteral("_"), QLibraryInfo::path(QLibraryInfo::TranslationsPath))) {

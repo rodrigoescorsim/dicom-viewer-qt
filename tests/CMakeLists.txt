@@ -10,8 +10,7 @@ function(dv_add_test name)
     add_test(NAME ${name} COMMAND ${name})
     set_tests_properties(${name} PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen" TIMEOUT 120)
     if(WIN32)
-        # The tests are NOT deployed with windeployqt: they find Qt (including the offscreen platform
-        # plugin) through PATH.
+        # Tests are not deployed with windeployqt: they find Qt through PATH.
         set_property(TEST ${name} APPEND PROPERTY
                      ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:${DV_QT_BIN_DIR}")
     endif()

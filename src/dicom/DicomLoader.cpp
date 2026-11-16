@@ -1,7 +1,6 @@
 #include "dicom/DicomLoader.hpp"
 
 #include <dcmtk/config/osconfig.h>
-
 #include <dcmtk/dcmdata/dccodec.h>
 #include <dcmtk/dcmdata/dctk.h>
 #include <dcmtk/dcmdata/dcxfer.h>
@@ -209,8 +208,8 @@ LoadResult<MonoImage> extractMono(DicomImage& source, DcmDataset& dataset) {
     image.padding = readPadding(dataset, image);
     computeValueRange(image);
     image.presets = readPresets(dataset);
-    image.defaultWindow =
-        image.presets.empty() ? fullRangeWindow(image.minValue, image.maxValue) : image.presets.front().window;
+    image.defaultWindow = image.presets.empty() ? fullRangeWindow(image.minValue, image.maxValue)
+                                                : image.presets.front().window;
     return image;
 }
 
@@ -389,17 +388,16 @@ LoadResult<ImageDocument> load(const std::filesystem::path& path) {
                          std::memcmp(header.data() + 128, "DICM", 4) == 0;
     }
 
-    // 2. Parse. OFFilename accepts wchar_t* on Windows and char* elsewhere, so path.c_str() keeps
-    //    non-ASCII paths working on every platform.
+    // 2. Parse. path.c_str() is wchar_t* on Windows, so non-ASCII paths work.
     DcmFileFormat file;
     if (const OFCondition status = file.loadFile(OFFilename(path.c_str())); status.bad()) {
-        // With the "DICM" prefix the file is DICOM but damaged (typically truncated); without it, it is
-        // simply not DICOM.
-        return fail(hasDicomPrefix ? LoadErrorCode::CorruptPixelData : LoadErrorCode::NotDicom, status.text());
+        // With the "DICM" prefix the file is DICOM but damaged; without it, it is not DICOM.
+        return fail(hasDicomPrefix ? LoadErrorCode::CorruptPixelData : LoadErrorCode::NotDicom,
+                    status.text());
     }
     DcmDataset& dataset = *file.getDataset();
-    // DCMTK accepts datasets without preamble (legacy files). Without the "DICM" prefix, demand at least
-    // one attribute that identifies a DICOM object, otherwise arbitrary files could be accepted.
+    // DCMTK accepts legacy files without preamble. Without the "DICM" prefix, require an attribute that
+    // identifies a DICOM object, so arbitrary files are rejected.
     if (!hasDicomPrefix && !dataset.tagExists(DCM_SOPClassUID) &&
         !(dataset.tagExists(DCM_Rows) && dataset.tagExists(DCM_Columns))) {
         return fail(LoadErrorCode::NotDicom, "no DICM prefix and no recognizable DICOM attributes");
@@ -445,8 +443,7 @@ LoadResult<ImageDocument> load(const std::filesystem::path& path) {
         document.pixels = std::move(*color);
     }
 
-    // 5. Text attributes. Convert to UTF-8 first so every string leaving this layer is UTF-8.
-    //    A failed conversion (unknown character set) is not fatal: values are kept as stored.
+    // 5. Text attributes, as UTF-8. If the conversion fails (unknown character set), values stay as stored.
     (void)dataset.convertToUTF8();
     document.orientation = readOrientation(dataset);
     document.info = readInfo(dataset, transferSyntaxInfo);

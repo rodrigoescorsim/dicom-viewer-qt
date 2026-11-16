@@ -44,7 +44,7 @@ struct GrayLutParams {
 
 /// Writes `height` rows of `width` gray pixels to `dst`; consecutive rows are `dstStride` bytes apart.
 /// Preconditions: src.size() == width * height; every value in `src` is < lut.size(); dstStride >= width.
-void applyGrayLut(std::span<const std::uint16_t> src, std::span<const std::uint8_t> lut, int width, int height,
-                  std::uint8_t* dst, std::ptrdiff_t dstStride) noexcept;
+void applyGrayLut(std::span<const std::uint16_t> src, std::span<const std::uint8_t> lut, int width,
+                  int height, std::uint8_t* dst, std::ptrdiff_t dstStride) noexcept;
 
 } // namespace dv

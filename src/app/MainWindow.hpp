@@ -20,8 +20,8 @@ class MetadataPanel;
 class WindowLevelControls;
 struct PixelProbe;
 
-/// Application window: opens files, shows the viewport, the window controls, the metadata dock and the
-/// status bar, and reports load errors.
+/// Application window: opens files, hosts the viewport, tool bar, metadata dock and status bar, and
+/// reports load errors.
 class MainWindow : public QMainWindow {
     Q_OBJECT
 

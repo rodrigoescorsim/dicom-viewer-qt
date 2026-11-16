@@ -211,8 +211,7 @@ void ImageViewport::mouseMoveEvent(QMouseEvent* event) {
         break;
     }
     case DragMode::WindowLevel: {
-        // Right = wider window (less contrast); down = higher center (darker image). update(), called by
-        // setWindow(), coalesces repaints: nothing is rendered here.
+        // Right = wider window (less contrast); down = higher center (darker image).
         const dv::MonoImage* mono = m_document->mono();
         const double unitsPerPixel = std::max(1.0, (mono->maxValue - mono->minValue) / kWindowDragPixels);
         const QPointF delta = event->position() - m_dragStartPosition;
@@ -351,7 +350,7 @@ void ImageViewport::ensureFrame() {
                                                                 .entryCount = mono->lutEntryCount,
                                                                 .inverted = mono->inverted,
                                                                 .padding = mono->padding});
-        // QImage rows are 32-bit aligned: always pass bytesPerLine(), never assume stride == width.
+        // QImage rows are 32-bit aligned: the stride is bytesPerLine(), not the width.
         dv::applyGrayLut(raster.data, lut, raster.width, raster.height, m_frame.bits(),
                          m_frame.bytesPerLine());
     } else if (const dv::ColorImage* color = m_document->color()) {
