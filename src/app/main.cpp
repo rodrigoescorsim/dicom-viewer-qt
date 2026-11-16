@@ -16,8 +16,8 @@ int main(int argc, char* argv[]) {
     QCoreApplication::setOrganizationName(QStringLiteral("DicomViewer"));
     QCoreApplication::setApplicationName(QStringLiteral("DICOM Viewer"));
     QCoreApplication::setApplicationVersion(QStringLiteral(DV_VERSION));
-    static_cast<void>(
-        dv::app::installQtTranslations(app)); // optional: without it a few Qt texts stay English
+    // Optional: without the catalog only a few built-in Qt texts stay in English.
+    static_cast<void>(dv::app::installQtTranslations(app));
     QApplication::setStyle(QStyleFactory::create(QStringLiteral("Fusion")));
     QGuiApplication::styleHints()->setColorScheme(Qt::ColorScheme::Dark);
     {

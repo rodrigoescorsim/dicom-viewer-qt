@@ -20,6 +20,8 @@ class MetadataPanel;
 class WindowLevelControls;
 struct PixelProbe;
 
+/// Application window: opens files, shows the viewport, the window controls, the metadata dock and the
+/// status bar, and reports load errors.
 class MainWindow : public QMainWindow {
     Q_OBJECT
 
@@ -45,7 +47,9 @@ private slots:
     void showZoom(double zoom);
 
 private:
-    void createActions();
+    void createMetadataDock();
+    void createActions(); ///< Menus and their actions. Needs the metadata dock.
+    void createToolBar(); ///< Needs the actions.
     void createStatusBar();
     void restoreSettings();
     void updateActionStates();
@@ -62,6 +66,7 @@ private:
     QAction* m_zoomInAction{nullptr};
     QAction* m_zoomOutAction{nullptr};
     QAction* m_resetWindowAction{nullptr};
+    QAction* m_metadataAction{nullptr}; ///< Owned by the metadata dock (its toggleViewAction).
     WindowLevelControls* m_windowControls{nullptr};
     MetadataPanel* m_metadataPanel{nullptr};
     QLabel* m_probeLabel{nullptr};

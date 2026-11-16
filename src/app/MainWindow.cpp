@@ -90,7 +90,9 @@ MainWindow::MainWindow(QWidget* parent)
     connect(m_loader, &DocumentLoader::loadSucceeded, this, &MainWindow::onLoadSucceeded);
     connect(m_loader, &DocumentLoader::loadFailed, this, &MainWindow::onLoadFailed);
 
+    createMetadataDock();
     createActions();
+    createToolBar();
     createStatusBar();
     connect(m_viewport, &ImageViewport::probeChanged, this, &MainWindow::showProbe);
     connect(m_viewport, &ImageViewport::zoomChanged, this, &MainWindow::showZoom);
@@ -159,11 +161,15 @@ void MainWindow::createActions() {
     m_resetWindowAction->setShortcut(QKeySequence(Qt::Key_R));
     connect(m_resetWindowAction, &QAction::triggered, m_viewport, &ImageViewport::resetWindow);
 
-    m_windowControls = new WindowLevelControls(this);
-    // setWindow() on both sides ignores unchanged values, which ends the signal round trip.
-    connect(m_viewport, &ImageViewport::windowChanged, m_windowControls, &WindowLevelControls::setWindow);
-    connect(m_windowControls, &WindowLevelControls::windowEdited, m_viewport, &ImageViewport::setWindow);
+    viewMenu->addSeparator();
+    viewMenu->addAction(m_metadataAction);
 
+    QMenu* helpMenu = menuBar()->addMenu(tr("Aj&uda"));
+    QAction* aboutAction = helpMenu->addAction(tr("&Sobre…"));
+    connect(aboutAction, &QAction::triggered, this, &MainWindow::showAbout);
+}
+
+void MainWindow::createMetadataDock() {
     m_metadataPanel = new MetadataPanel(this);
     auto* metadataDock = new QDockWidget(tr("Metadados DICOM"), this);
     metadataDock->setObjectName(QStringLiteral("metadataDock"));
@@ -172,15 +178,16 @@ void MainWindow::createActions() {
     addDockWidget(Qt::RightDockWidgetArea, metadataDock);
     resizeDocks({metadataDock}, {kMetadataDockWidth}, Qt::Horizontal);
 
-    QAction* metadataAction = metadataDock->toggleViewAction();
-    metadataAction->setText(tr("Metadados"));
-    metadataAction->setShortcut(QKeySequence(Qt::Key_F9));
-    viewMenu->addSeparator();
-    viewMenu->addAction(metadataAction);
+    m_metadataAction = metadataDock->toggleViewAction();
+    m_metadataAction->setText(tr("Metadados"));
+    m_metadataAction->setShortcut(QKeySequence(Qt::Key_F9));
+}
 
-    QMenu* helpMenu = menuBar()->addMenu(tr("Aj&uda"));
-    QAction* aboutAction = helpMenu->addAction(tr("&Sobre…"));
-    connect(aboutAction, &QAction::triggered, this, &MainWindow::showAbout);
+void MainWindow::createToolBar() {
+    m_windowControls = new WindowLevelControls(this);
+    // setWindow() on both sides ignores unchanged values, which ends the signal round trip.
+    connect(m_viewport, &ImageViewport::windowChanged, m_windowControls, &WindowLevelControls::setWindow);
+    connect(m_windowControls, &WindowLevelControls::windowEdited, m_viewport, &ImageViewport::setWindow);
 
     // Order: Open | zoom | window | metadata.
     m_toolBar = addToolBar(tr("Barra de ferramentas"));
@@ -197,10 +204,10 @@ void MainWindow::createActions() {
     m_toolBar->addWidget(m_windowControls);
     m_toolBar->addAction(m_resetWindowAction);
     m_toolBar->addSeparator();
-    m_toolBar->addAction(metadataAction);
+    m_toolBar->addAction(m_metadataAction);
 
     for (QAction* action : {m_openAction, m_fitAction, m_actualSizeAction, m_zoomInAction, m_zoomOutAction,
-                            m_resetWindowAction, metadataAction}) {
+                            m_resetWindowAction, m_metadataAction}) {
         setToolTipWithShortcut(action);
     }
 }
