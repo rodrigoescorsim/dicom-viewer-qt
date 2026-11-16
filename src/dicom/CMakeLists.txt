@@ -1,4 +1,9 @@
-# Header-only until T06 adds the DICOM loader (then it becomes a STATIC library linked to DCMTK).
-add_library(dv_dicom INTERFACE)
-target_include_directories(dv_dicom INTERFACE "${PROJECT_SOURCE_DIR}/src")
-target_link_libraries(dv_dicom INTERFACE dv_core)
+add_library(dv_dicom STATIC
+    CodecRegistry.hpp CodecRegistry.cpp
+    DicomLoader.hpp DicomLoader.cpp
+)
+target_link_libraries(dv_dicom
+    PUBLIC dv_core
+    PRIVATE DCMTK::dcmimage DCMTK::dcmimgle DCMTK::dcmjpeg DCMTK::dcmjpls DCMTK::dcmdata)
+set_target_properties(dv_dicom PROPERTIES AUTOMOC OFF AUTOUIC OFF AUTORCC OFF)
+dv_set_project_options(dv_dicom)
