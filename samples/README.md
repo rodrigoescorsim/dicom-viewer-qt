@@ -11,6 +11,7 @@ Usados pelos testes (`tests/`) e para validação manual. Nenhum contém dados r
 | `MR_small_bigendian.dcm` | pydicom | Explicit VR Big Endian |
 | `MR_small_RLE.dcm` | pydicom | RLE Lossless |
 | `MR_small_jpeg_ls_lossless.dcm` | pydicom | JPEG-LS Lossless |
+| `image_dfl.dcm` | pydicom | Deflated Explicit VR Little Endian, 512×512, 8 bits |
 | `MR_small_jp2klossless.dcm` | pydicom | JPEG 2000: erro de compressão não suportada |
 | `JPGExtended.dcm` | pydicom | JPEG Extended (12 bits, com perdas) |
 | `examples_overlay.dcm` | pydicom | 12 bits, 2 presets de janela |

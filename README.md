@@ -36,7 +36,8 @@ Inclui ajuste de janela (Window Level / Window Width), painel de metadados e ima
 
 **Extras**
 
-- Zoom ancorado no cursor, pan, ajustar à janela e 100 %.
+- Zoom ancorado no cursor, pan, ajustar à janela e 100 %. Acima de 300 %, os pixels aparecem como blocos
+  nítidos, sem interpolação.
 - Carregamento em segundo plano: a interface não trava. A mamografia de exemplo (6,8 megapixels,
   JPEG Lossless) abre em cerca de 0,15 s.
 - Barra de status com valor do pixel sob o cursor, dimensões, bits, interpretação fotométrica e sintaxe de
@@ -51,8 +52,8 @@ Inclui ajuste de janela (Window Level / Window Width), painel de metadados e ima
 | JPEG Baseline, Extended e Lossless | Sim |
 | JPEG-LS Lossless e Near-Lossless | Sim |
 | RLE Lossless | Sim |
+| Deflated Explicit VR Little Endian | Sim |
 | JPEG 2000, HTJ2K, JPEG XL, MPEG, HEVC | Não. O erro informa a sintaxe |
-| Deflated Explicit VR Little Endian | Não. O DCMTK do vcpkg é compilado sem zlib |
 
 ## Bibliotecas
 
@@ -60,10 +61,11 @@ Inclui ajuste de janela (Window Level / Window Width), painel de metadados e ima
 |---|---|---|
 | [Qt](https://www.qt.io/) | **6.11.3** | Interface (Core, Gui, Widgets, Concurrent) e testes (Test) |
 | [DCMTK](https://dicom.offis.de/dcmtk) | 3.7.1 | Leitura, descompressão e Modality LUT (`dcmdata`, `dcmimgle`, `dcmimage`, `dcmjpeg`, `dcmjpls`) |
+| [zlib](https://zlib.net/) | via vcpkg | Arquivos Deflated, usada pelo DCMTK |
 
 **Versão do Qt: 6.11.3** (kit `msvc2022_64`). O build aceita a partir da 6.8.
 
-O DCMTK é baixado e compilado pelo [vcpkg](https://vcpkg.io/), com a versão fixada em `vcpkg.json`.
+DCMTK e zlib são baixados e compilados pelo [vcpkg](https://vcpkg.io/), com versões fixadas em `vcpkg.json`.
 
 ## Requisitos
 

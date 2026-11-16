@@ -137,6 +137,9 @@ void TstDicomLoader::monochrome_data() {
                              << linear;
     QTest::newRow("jpegExtended") << "JPGExtended.dcm" << 256 << 1024 << 0.0 << 264.0 << 0.0
                                   << QList<double>{} << false << 1.0 << 0 << 132.5 << 265.0 << linear;
+    QTest::newRow("deflated") << "image_dfl.dcm" << 512 << 512 << 0.0 << 255.0 << 0.0
+                              << QList<double>{213, 65, 188, 41} << false << 1.0 << 0 << 128.0 << 256.0
+                              << linear;
 }
 
 void TstDicomLoader::monochrome() {
