@@ -8,6 +8,14 @@ de janela (Window Level / Window Width), painel de metadados e suporte a imagens
 
 ![Tela principal](docs/screenshots/main.png)
 
+## Capturas de tela
+
+| Metadados em árvore (filtro `Sequence`) | Imagem colorida (janelamento desabilitado) |
+|---|---|
+| ![Painel de metadados](docs/screenshots/metadata.png) | ![Imagem RGB](docs/screenshots/rgb.png) |
+
+![Mensagem de erro ao abrir um arquivo que não é DICOM; a imagem anterior continua aberta](docs/screenshots/error.png)
+
 ## Funcionalidades
 
 **Escopo obrigatório**
@@ -38,19 +46,25 @@ de janela (Window Level / Window Width), painel de metadados e suporte a imagens
 **Usabilidade**
 
 - Zoom ancorado no cursor (roda do mouse), pan, ajustar à janela e 100%.
-- Carregamento em segundo plano: a interface nunca trava, mesmo com arquivos grandes.
+- Carregamento em segundo plano, com indicador na barra de status: a interface nunca trava, mesmo com
+  arquivos grandes (a mamografia de exemplo, 6,8 megapixels em JPEG Lossless, abre em cerca de 0,15 s).
 - Pirâmide de resoluções: o ajuste de janela continua fluido em imagens de vários megapixels.
-- Valor do pixel sob o cursor na barra de status.
+- Valor do pixel sob o cursor, dimensões, profundidade de bits, interpretação fotométrica e sintaxe de
+  transferência na barra de status.
+- Cópia de uma linha do painel de metadados (`Ctrl+C` ou menu de contexto).
+- Tamanho e posição da janela, estado do painel e última pasta usada são lembrados entre execuções.
+- **Ajuda → Sobre** mostra as versões do Qt e do DCMTK em uso.
 
 ### Sintaxes de transferência suportadas
 
 | Sintaxe de transferência | Suporte |
 |---|---|
-| Implicit VR Little Endian, Explicit VR Little/Big Endian, Deflated | Sim |
+| Implicit VR Little Endian, Explicit VR Little/Big Endian | Sim |
 | JPEG Baseline, Extended e Lossless (Process 1, 2/4, 14, 14 SV1) | Sim |
 | JPEG-LS Lossless e Near-Lossless | Sim |
 | RLE Lossless | Sim |
 | JPEG 2000, HTJ2K, JPEG XL, MPEG, HEVC | Não: a aplicação informa qual é a sintaxe não suportada |
+| Deflated Explicit VR Little Endian | Não: o DCMTK do vcpkg é compilado sem zlib |
 
 ## Bibliotecas utilizadas
 
@@ -139,8 +153,9 @@ No Linux: `./build/linux/src/app/dicom-viewer samples/anonymized_mamo.dcm`.
 ctest --preset windows
 ```
 
-A suíte usa Qt Test e cobre o núcleo de processamento (VOI LUT, pirâmide de resoluções, orientação),
-o carregamento de todos os arquivos de `samples/` (incluindo os inválidos) e os componentes de interface.
+A suíte usa Qt Test (15 executáveis) e cobre o núcleo de processamento (VOI LUT, pirâmide de resoluções,
+orientação), o carregamento de todos os arquivos de `samples/` (incluindo os inválidos) e os componentes de
+interface (viewport, controles de janela, painel de metadados, janela principal e carregamento assíncrono).
 Os valores esperados de pixel foram obtidos com uma implementação independente (pydicom).
 
 ## Como usar
@@ -155,6 +170,8 @@ Os valores esperados de pixel foram obtidos com uma implementação independente
 | Ajustar à janela / tamanho real | `Ctrl+0` ou duplo clique / `Ctrl+1` |
 | Mover a imagem (pan) | Arrastar com o botão do meio, ou `Ctrl` + arrastar com o esquerdo |
 | Mostrar/ocultar metadados | `F9` |
+| Filtrar metadados | Campo no topo do painel (tag, nome ou valor) |
+| Copiar linha de metadados | `Ctrl+C` ou menu de contexto do painel |
 
 Em imagens coloridas não há janelamento; arrastar com o botão esquerdo move a imagem.
 
@@ -170,7 +187,7 @@ app  (Qt Widgets)  ──►  dicom  (DCMTK)  ──►  core  (C++23 puro)
 |---|---|---|---|
 | `src/core` | `dv_core` | Biblioteca padrão | Modelo de domínio (`ImageDocument`), funções de VOI, LUT de tons de cinza, pirâmide de resoluções, rótulos de orientação. Sem Qt e sem DCMTK. |
 | `src/dicom` | `dv_dicom` | `dv_core`, DCMTK | Único ponto de contato com o DCMTK: lê o arquivo, descomprime, aplica a Modality LUT e devolve um `ImageDocument` ou um `LoadError`. |
-| `src/app` | `dicom-viewer` | `dv_dicom`, Qt | Janela principal, viewport, controles de janela, painel de metadados e carregamento assíncrono. |
+| `src/app` | `dv_app` (biblioteca) e `dicom-viewer` (executável, só o `main.cpp`) | `dv_dicom`, Qt | Janela principal, viewport, controles de janela, painel de metadados e carregamento assíncrono. Fica numa biblioteca para que os testes usem as mesmas classes. |
 
 Decisões principais:
 
