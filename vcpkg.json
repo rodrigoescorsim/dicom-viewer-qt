@@ -1,0 +1,10 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "name": "dicom-viewer",
+  "version": "1.0.0",
+  "description": "DICOM image viewer built with Qt and DCMTK",
+  "builtin-baseline": "8f363bdc11359ede4bc51e5eb32a2617538049c8",
+  "dependencies": [
+    "dcmtk"
+  ]
+}
