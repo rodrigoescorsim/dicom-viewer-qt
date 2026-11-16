@@ -3,7 +3,7 @@ add_library(dv_core STATIC
     GrayLut.hpp GrayLut.cpp
     Raster.hpp
     Orientation.hpp Orientation.cpp
-    # T05: LoadError.hpp ImageDocument.hpp
+    LoadError.hpp ImageDocument.hpp
 )
 target_include_directories(dv_core PUBLIC "${PROJECT_SOURCE_DIR}/src")
 set_target_properties(dv_core PROPERTIES AUTOMOC OFF AUTOUIC OFF AUTORCC OFF)
