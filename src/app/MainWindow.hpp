@@ -6,11 +6,16 @@
 #include <QMainWindow>
 #include <QString>
 
+#include <optional>
+
 class QAction;
+class QLabel;
+class QToolBar;
 
 namespace dv::app {
 
 class ImageViewport;
+struct PixelProbe;
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -27,15 +32,28 @@ private slots:
     void onLoadStarted(const QString& filePath);
     void onLoadSucceeded(const QString& filePath, const dv::app::DocumentPtr& document);
     void onLoadFailed(const QString& filePath, const dv::LoadError& error);
+    void showProbe(const std::optional<dv::app::PixelProbe>& probe);
+    void showZoom(double zoom);
 
 private:
     void createActions();
+    void createStatusBar();
+    void updateActionStates();
+    void updateImageInfo();
     /// Ends the busy state of every load started so far (superseded loads never report a result).
     void finishPendingLoads();
 
     ImageViewport* m_viewport{nullptr};
     DocumentLoader* m_loader{nullptr};
+    QToolBar* m_toolBar{nullptr};
     QAction* m_openAction{nullptr};
+    QAction* m_fitAction{nullptr};
+    QAction* m_actualSizeAction{nullptr};
+    QAction* m_zoomInAction{nullptr};
+    QAction* m_zoomOutAction{nullptr};
+    QLabel* m_probeLabel{nullptr};
+    QLabel* m_imageInfoLabel{nullptr};
+    QLabel* m_zoomLabel{nullptr};
     QString m_lastDirectory;
     int m_pendingLoads{0}; ///< Loads started whose busy cursor is still set.
 };

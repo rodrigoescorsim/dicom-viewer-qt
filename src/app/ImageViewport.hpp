@@ -8,11 +8,14 @@
 #include <QRgb>
 #include <QWidget>
 
+#include <cstdint>
 #include <optional>
 
 class QColor;
+class QMouseEvent;
 class QPainter;
 class QRectF;
+class QWheelEvent;
 
 namespace dv::app {
 
@@ -65,14 +68,32 @@ signals:
 protected:
     void paintEvent(QPaintEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
+    void wheelEvent(QWheelEvent* event) override;
+    void mousePressEvent(QMouseEvent* event) override;
+    void mouseMoveEvent(QMouseEvent* event) override;
+    void mouseReleaseEvent(QMouseEvent* event) override;
+    void mouseDoubleClickEvent(QMouseEvent* event) override;
+    void leaveEvent(QEvent* event) override;
 
 private:
+    /// Decided once, in mousePressEvent, for the whole drag.
+    enum class DragMode : std::uint8_t { None, WindowLevel, Pan };
+
     [[nodiscard]] double scaleX() const noexcept; // logical px per image column  (= m_scale)
     [[nodiscard]] double scaleY() const noexcept; // logical px per image row     (= m_scale * aspect)
     [[nodiscard]] double fitScale() const noexcept;
+    [[nodiscard]] double minScale() const noexcept;
+    [[nodiscard]] double maxScale() const noexcept;
+    [[nodiscard]] QPointF widgetCenter() const noexcept;
+    /// Zooms to `newScale` (clamped) keeping the image point under `anchor` (widget coordinates) in place.
+    void setScaleAt(double newScale, QPointF anchor);
+    /// Keeps m_center inside the image, so the image never leaves the widget.
+    void clampCenter() noexcept;
+    [[nodiscard]] std::optional<PixelProbe> probeAt(QPointF widgetPoint) const;
     void ensureFrame();
     void drawEmptyState(QPainter& painter) const;
     void drawOrientationLabels(QPainter& painter) const;
+    void drawInfoText(QPainter& painter) const;
     static void drawOutlinedText(QPainter& painter, const QRectF& rect, int flags, const QString& text,
                                  const QColor& color);
 
@@ -81,6 +102,11 @@ private:
     double m_scale{1.0}; ///< Logical widget pixels per image column.
     QPointF m_center;    ///< Image point shown at the center of the widget.
     bool m_fitToWindow{true};
+
+    DragMode m_dragMode{DragMode::None};
+    Qt::MouseButton m_dragButton{Qt::NoButton};
+    QPointF m_dragStartPosition; ///< Widget coordinates.
+    QPointF m_dragStartCenter;
 
     QImage m_frame; ///< Cache: current pyramid level rendered with the current window.
     int m_frameLevel{-1};
