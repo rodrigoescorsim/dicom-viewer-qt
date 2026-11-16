@@ -10,6 +10,7 @@
 
 class QAction;
 class QLabel;
+class QProgressBar;
 class QToolBar;
 
 namespace dv::app {
@@ -29,8 +30,14 @@ public:
     void openFile(const QString& filePath);
     [[nodiscard]] ImageViewport* viewport() const noexcept { return m_viewport; }
 
+protected:
+    void closeEvent(QCloseEvent* event) override;
+    void dragEnterEvent(QDragEnterEvent* event) override;
+    void dropEvent(QDropEvent* event) override;
+
 private slots:
     void chooseFile();
+    void showAbout();
     void onLoadStarted(const QString& filePath);
     void onLoadSucceeded(const QString& filePath, const dv::app::DocumentPtr& document);
     void onLoadFailed(const QString& filePath, const dv::LoadError& error);
@@ -40,6 +47,7 @@ private slots:
 private:
     void createActions();
     void createStatusBar();
+    void restoreSettings();
     void updateActionStates();
     void updateImageInfo();
     /// Ends the busy state of every load started so far (superseded loads never report a result).
@@ -59,6 +67,7 @@ private:
     QLabel* m_probeLabel{nullptr};
     QLabel* m_imageInfoLabel{nullptr};
     QLabel* m_zoomLabel{nullptr};
+    QProgressBar* m_loadProgress{nullptr};
     QString m_lastDirectory;
     int m_pendingLoads{0}; ///< Loads started whose busy cursor is still set.
 };

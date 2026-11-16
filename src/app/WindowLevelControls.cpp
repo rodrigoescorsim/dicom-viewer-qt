@@ -82,6 +82,8 @@ void WindowLevelControls::setDocument(const DocumentPtr& document) {
                                     : tr("O ajuste de janela se aplica apenas a imagens em tons de cinza."));
     }
     if (!enabled) {
+        m_center->clear(); // no stale numbers next to a color image
+        m_width->clear();
         return;
     }
 
@@ -107,6 +109,9 @@ void WindowLevelControls::setDocument(const DocumentPtr& document) {
 }
 
 void WindowLevelControls::setWindow(const dv::VoiWindow& window) {
+    if (m_presetWindows.empty()) {
+        return; // no monochrome document (the list always holds "Faixa completa" when there is one)
+    }
     const QSignalBlocker blockPresets(m_presets);
     const QSignalBlocker blockCenter(m_center);
     const QSignalBlocker blockWidth(m_width);

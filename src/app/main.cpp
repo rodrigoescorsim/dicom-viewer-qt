@@ -3,6 +3,7 @@
 
 #include <QApplication>
 #include <QCommandLineParser>
+#include <QPalette>
 #include <QStringList>
 #include <QStyleFactory>
 #include <QStyleHints>
@@ -16,6 +17,15 @@ int main(int argc, char* argv[]) {
     QCoreApplication::setApplicationVersion(QStringLiteral(DV_VERSION));
     QApplication::setStyle(QStyleFactory::create(QStringLiteral("Fusion")));
     QGuiApplication::styleHints()->setColorScheme(Qt::ColorScheme::Dark);
+    {
+        // The dark palette paints alternate rows (metadata tree) in a saturated blue; a neutral shade
+        // slightly lighter than the base keeps the rows readable without competing with the image.
+        constexpr int kAlternateRowLightness = 125; // percent of Base
+        QPalette palette = QApplication::palette();
+        palette.setColor(QPalette::AlternateBase,
+                         palette.color(QPalette::Base).lighter(kAlternateRowLightness));
+        QApplication::setPalette(palette);
+    }
 
     QCommandLineParser parser;
     parser.setApplicationDescription(QCoreApplication::translate("main", "Visualizador de imagens DICOM"));
