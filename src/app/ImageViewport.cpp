@@ -44,6 +44,8 @@ constexpr double kMinZoomFactor = 0.5;  ///< Smallest zoom, relative to min(fit,
 constexpr double kMaxDeviceZoom = 16.0; ///< Device pixels per image pixel allowed at the largest zoom.
 constexpr double kMaxFitFactor = 4.0;   ///< ...unless 4x the fit zoom is larger (tiny images).
 constexpr double kPercent = 100.0;
+/// Above this zoom (device pixels per image pixel) pixels are drawn as sharp blocks, not interpolated.
+constexpr double kMaxSmoothZoom = 3.0;
 /// A window drag spans the image's value range in this many mouse pixels (but never < 1 unit per pixel).
 constexpr double kWindowDragPixels = 1024.0;
 
@@ -154,7 +156,8 @@ void ImageViewport::paintEvent(QPaintEvent* /*event*/) {
         return;
     }
     ensureFrame();
-    painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
+    const double deviceZoom = std::min(scaleX(), scaleY()) * devicePixelRatioF();
+    painter.setRenderHint(QPainter::SmoothPixmapTransform, deviceZoom < kMaxSmoothZoom);
     const QRectF target(imageToWidget({0.0, 0.0}),
                         QSizeF(m_document->width * scaleX(), m_document->height * scaleY()));
     painter.drawImage(target, m_frame, QRectF(m_frame.rect()));

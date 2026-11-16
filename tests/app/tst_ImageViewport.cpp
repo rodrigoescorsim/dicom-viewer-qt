@@ -109,6 +109,8 @@ private slots:
     void refitsOnResize();
     void paintsImageNotMirrored();
     void paintsTopRowAtTop();
+    void lowZoom_interpolates();
+    void highZoom_drawsSharpPixels();
     void selectsPyramidLevel();
     void setDocument_resetsWindowAndEmits();
     void replacingColorDocument_isSafe();
@@ -277,6 +279,41 @@ void TstImageViewport::paintsTopRowAtTop() {
     const QImage screen = viewport.grab().toImage();
     QVERIFY(qGray(screen.pixel(200, 50)) < kDarkLimit);
     QVERIFY(qGray(screen.pixel(200, 350)) > kBrightLimit);
+}
+
+void TstImageViewport::lowZoom_interpolates() {
+    // Alternating dark/bright columns at zoom 2: interpolation produces intermediate grays.
+    constexpr int kWidth = 200;
+    constexpr int kHeight = 150;
+    std::vector<std::uint16_t> indices(static_cast<std::size_t>(kWidth) * kHeight);
+    for (std::size_t i = 0; i < indices.size(); ++i) {
+        indices[i] = (i % 2) == 0 ? std::uint16_t{0} : std::uint16_t{255};
+    }
+    ImageViewport viewport;
+    QVERIFY(showViewport(viewport, 400, 300));
+    viewport.setDocument(makeMonoDocument(kWidth, kHeight, std::move(indices), kIdentityWindow));
+    QVERIFY(near(viewport.zoom() / viewport.devicePixelRatioF(), 2.0));
+
+    const QImage screen = viewport.grab().toImage();
+    bool foundIntermediate = false;
+    for (int x = 100; x < 120 && !foundIntermediate; ++x) {
+        const int gray = grayAt(screen, x, 150);
+        foundIntermediate = gray > kDarkLimit && gray < kBrightLimit;
+    }
+    QVERIFY(foundIntermediate);
+}
+
+void TstImageViewport::highZoom_drawsSharpPixels() {
+    // 2x1 image at zoom 200: each side of the column boundary keeps its exact stored gray.
+    ImageViewport viewport;
+    QVERIFY(showViewport(viewport, 400, 400));
+    viewport.setDocument(makeMonoDocument(2, 1, {0, 255}, kIdentityWindow));
+
+    const QImage screen = viewport.grab().toImage();
+    const int boundary = qRound(viewport.imageToWidget({1.0, 0.5}).x());
+    const int y = qRound(viewport.imageToWidget({1.0, 0.5}).y());
+    QCOMPARE(grayAt(screen, boundary - 2, y), 0);
+    QCOMPARE(grayAt(screen, boundary + 2, y), 255);
 }
 
 void TstImageViewport::selectsPyramidLevel() {
