@@ -13,6 +13,18 @@ Inclui ajuste de janela (Window Level / Window Width), painel de metadados e ima
 
 ![Erro ao abrir um arquivo que não é DICOM](docs/screenshots/error.png)
 
+## Executável pronto (Windows)
+
+Para testar sem compilar, baixe `dicom-viewer-1.0.0-windows-x64.zip` na
+[página de releases](https://github.com/rodrigoescorsim/dicom-viewer-qt/releases/latest), extraia e execute
+`dicom-viewer.exe`. O pacote não precisa de instalação e inclui o Qt, o DCMTK, o runtime do Visual C++ e
+arquivos de exemplo. Funciona no Windows 10 e 11, 64 bits.
+
+O executável foi compilado da tag `v1.0.0`, sem modificações, seguindo as instruções deste README. O SHA-256
+do zip está na página da release. Por não ter assinatura digital, o Windows pode mostrar o aviso do
+SmartScreen na primeira execução: clique em **Mais informações** e depois em **Executar assim mesmo**.
+Se preferir, compile pelo código seguindo as seções abaixo.
+
 ## Funcionalidades
 
 **Obrigatórias**
